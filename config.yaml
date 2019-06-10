@@ -1,44 +1,42 @@
 servers:
 
 - name: Ruby:Rails
+  enabled: 1 
   endpoint: http://localhost:3000/graphql
   run:
     command: rails s
     cwd: servers/ruby/
     startupTime: 7s
-  warmup:
-    concurrency: 10
-    duration: 5s
 
 - name: Python:Japronto 
+  enabled: 1 
   endpoint: http://localhost:8080/graphql
   run:
     command: python3 app.py
     cwd: servers/japronto-graphene/
     startupTime: 5s
-  warmup:
-    concurrency: 10
-    duration: 5s
 
 - name: Ruby:Rack
+  enabled: 0 
   endpoint: http://localhost:9292/graphql
   run:
     command: rackup app.ru 
     cwd: servers/rack/
     startupTime: 5s
-  warmup:
-    concurrency: 10
-    duration: 5s
 
 - name: Go:Native
+  enabled: 0
   endpoint: http://localhost:9090/query
   run:
     command: go run schema.go server.go
     cwd: servers/go/
     startupTime: 28s
-  warmup:
-    concurrency: 10
-    duration: 5s
+
+warmup:
+  concurrency: 1000
+  threads: 10
+  duration: 5s
+
 
 queries:
    - name: Basic
