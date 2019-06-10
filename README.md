@@ -7,10 +7,16 @@ Python 3.6+ and `wrk`.
 ```shell
 pip3 install -r requirements.txt
 ```
+Servers Requirements: depending on which servers you are using (or if you setup your custom servers).
+Builtin servers:
+ - Go: go (native).
+ - Rack: dependencies on Gemfile (bundler).
+ - Rails: dependencies on Gemfile (bundler).
+ - Python: dependencies on requirements.txt.
 
 ## Benchmark
 
-`python benchql.py benchmark` will benchmark Servers and queries from a given [`config.yaml`](#config-file) and output into an optional json file (`results.json`)
+`python3 benchql.py benchmark` will benchmark Servers and queries from a given [`config.yaml`](#config-file) and output into an optional json file (`results.json`)
 
 ```shell
 python3 benchql.py benchmark config.yaml results.json
@@ -32,6 +38,7 @@ Also, we will indicate what is the startup command for running it and if there i
 ```yaml
 servers:
 - name: Graphene
+  enabled: 1
   # The endpoint to run the benchmark on
   endpoint: http://localhost:8080/graphql
   run:
@@ -42,12 +49,15 @@ servers:
     # The time we will wait before benchmarking
     startupTime: 2s
 
-  # If we want to warmup the server before benchmarking
-  warmup:
-    concurrency: 1
-    duration: 5s
-```
 
+```
+Then, specify the warmup (or ramp-up) of the server:
+```
+warmup:
+  concurrency: 1
+  duration: 5s
+  threads: 10
+```
 The `queries` section indicates all the different queries that we want to benchmark, in all servers.
 
 ```yaml
@@ -57,12 +67,12 @@ queries:
   filename: queries/basic.graphql
   # This is optional, but if present will validate the response
   # of each of the GraphQL servers against the given file.
-  expectedResultFilename: queries/basic.json
+  expected: queries/basic.json
 ```
 
 ## Docker
 
-
+> Upcoming: dockerized servers
 
 
 Build the dashboard image in docker by doing:
