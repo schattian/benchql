@@ -1,0 +1,22 @@
+servers:
+- name: Python:Japronto 
+  endpoint: http://localhost:8080/graphql
+  run:
+    command: python3 app.py
+    cwd: servers/japronto-graphene/
+    startupTime: 5s
+  warmup:
+    concurrency: 10
+    duration: 5s
+
+
+queries:
+   - name: Basic
+     filename: queries/basic.graphql
+     expectedResultFilename: queries/basic.json
+    
+   - name: Object List
+     filename: queries/object_list.graphql
+     expectedResultFilename: queries/object_list.json
+
+
