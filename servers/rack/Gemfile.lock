@@ -1,0 +1,19 @@
+GEM
+  specs:
+    graphql (1.9.6)
+    graphql_server (0.1.1)
+      graphql (~> 1.8)
+      json (~> 1.8)
+      rack (~> 2.0)
+    json (1.8.3)
+    rack (2.0.7)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  graphql_server
+  rack
+
+BUNDLED WITH
+   1.17.3

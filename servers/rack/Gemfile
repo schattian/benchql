@@ -1,0 +1,2 @@
+gem 'graphql_server'
+gem 'rack'
