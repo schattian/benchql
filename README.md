@@ -39,6 +39,8 @@ Examples:
 <br>
 
 GraphQL (2 endpoints, 5 APIs):
+
+
 <a href="https://ibb.co/ZJxB6yn"><img src="https://i.ibb.co/H2qtDmW/newplot-2.png" alt="newplot-2" border="0"></a>
 <a href="https://ibb.co/g78GxWW"><img src="https://i.ibb.co/VNGdsCC/newplot-1.png" alt="newplot-1" border="0"></a>
 <br>
