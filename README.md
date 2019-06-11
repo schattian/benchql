@@ -9,10 +9,11 @@ pip3 install -r requirements.txt
 ```
 Servers Requirements: depending on which servers you are using (or if you setup your custom servers).
 Builtin servers:
- - Go: go (native).
- - Rack: dependencies on Gemfile (bundler).
- - Rails: dependencies on Gemfile (bundler).
- - Python: dependencies on requirements.txt.
+ - Go (native): github.com/graph-gophers/graphql-go.
+ - Ruby (rack): dependencies on Gemfile (bundler).
+ - Ruby (rails): dependencies on Gemfile (bundler).
+ - Python (japronto): dependencies on requirements.txt.
+ - Node (express): dependencies on yarn.
 
 ## Benchmark
 
@@ -26,7 +27,7 @@ Also, after benchmarking a dashboard server will automatically run with the resu
 
 ## Dashboard
 
-`python3 gbench.py dashboard results.json` will start a dashboard server using the given results file.
+`python3 gbench.py dashboard results.json config.yaml` will start a dashboard server using the given results file and config warmup as headers.
 
 ## Config file
 

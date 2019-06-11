@@ -6,6 +6,7 @@ RUN pip install -r /app/requirements.txt
 COPY dashboard.py /app/dashboard.py
 COPY gbench.py /app/benchql.py
 COPY results.json /app/results.json
+COPY config.yaml /app/config.yaml
 
 EXPOSE 8080
-CMD ["python3", "-u", "/app/benchql.py", "dashboard", "/app/results.json"]
+CMD ["python3", "-u", "/app/benchql.py", "dashboard", "/app/results.json", "/app/config.yaml"]
