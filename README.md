@@ -8,6 +8,9 @@ Python 3.6+ and `wrk`.
 pip3 install -r requirements.txt
 ```
 Servers Requirements: depending on which servers you are using (or if you setup your custom servers).
+
+To recreate the provided servers:
+
 Builtin servers:
  - Go (native): github.com/graph-gophers/graphql-go.
  - Ruby (rack): dependencies on Gemfile (bundler).
