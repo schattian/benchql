@@ -27,9 +27,9 @@ def parse_duration(time_str):
     return timedelta(**time_params).total_seconds()
 
 
-async def run_wrk(endpoint, query, concurrency=20, duration=10,threads=1):
+async def run_wrk(endpoint, query, concurrency=20, duration=10,threads=1, method='post'):
     wrk = await asyncio.create_subprocess_exec(
-        'wrk', '-t', str(int(threads)), '-c', str(concurrency), '-d', str(int(duration)), '-s', 'misc/graphql.lua',
+        'wrk', '-t', str(int(threads)), '-c', str(concurrency), '-d', str(int(duration)), '-s', f"misc/{method}.lua",
         endpoint, query, stdout=PIPE, stderr=PIPE)
 
     output, json_data = await wrk.communicate()
@@ -57,14 +57,14 @@ async def start_server(command, cwd):
 
 
 async def get_query_result(query_name, server_name, url, query_filename,
-                           warmup_duration=0, warmup_concurrency=1, threads=1):
+                           warmup_duration=0, warmup_concurrency=1, threads=1, method='post'):
     print("- Running query {}".format(query_name, server_name))
     if warmup_duration:
         print("  > Warming up the server")
-        await run_wrk(url, query_filename, concurrency=warmup_concurrency, duration=warmup_duration, threads=threads)
+        await run_wrk(url, query_filename, concurrency=warmup_concurrency, duration=warmup_duration, threads=threads, method=method)
         await asyncio.sleep(2)
     print("  > Benchmarking")
-    result, response = await run_wrk(url, query_filename, threads)
+    result, response = await run_wrk(url, query_filename, threads, method=method)
     return ({
         "query_name": query_name,
         "server_name": server_name,
@@ -85,8 +85,8 @@ async def force_termination(pid):
     await kill.communicate()
 
 
-async def bench_server(name, command, cwd, endpoint, queries,
-                       warmup_duration=0, command_ready_seconds=2, warmup_concurrency=1, threads=1):
+async def bench_server(name, command, cwd, endpoint, queries, warmup_duration=0,
+        command_ready_seconds=2, warmup_concurrency=1, threads=1, method='post'):
     print("Starting server: {}".format(name))
     if not await endpoint_is_dead(endpoint):
         print("- Can't start the server as there is a process already running on {}".format(endpoint))
@@ -97,7 +97,7 @@ async def bench_server(name, command, cwd, endpoint, queries,
         for query in queries:
             result, response = None, None
             try:
-                result, response = await get_query_result(query.get('name'), name, endpoint, query.get('filename'), warmup_duration, warmup_concurrency, threads=threads)
+                result, response = await get_query_result(query.get('name'), name, endpoint, query.get('filename'), warmup_duration, warmup_concurrency, threads=threads, method=method)
                 results.append(
                     result
                 )
@@ -181,7 +181,8 @@ async def _main(config_file, output):
             warmup_duration=duration,
             warmup_concurrency=concurrency,
             command_ready_seconds=server_wait,
-            threads=threads
+            threads=threads,
+            method=server.get('method')
             )
 
     if output:

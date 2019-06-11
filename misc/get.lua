@@ -22,8 +22,8 @@ function init(args)
   req_operation_name = operationName
 end
 
-function request()
-  wrk.method = "POST"
+function request(method)
+  wrk.method = "GET" 
   wrk.headers["Content-Type"] = "application/json"
   -- wrk.headers["Content-Type"] = "application/graphql"
   wrk.body = req_body

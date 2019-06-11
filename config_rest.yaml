@@ -1,0 +1,25 @@
+servers:
+servers:
+- name: Python:Flask(rest)
+  enabled: 1
+  endpoint: http://localhost:5000/
+  method: get 
+  run:
+    command: python3 app.py
+    cwd: servers/flask/
+    startupTime: 2s
+
+
+warmup:
+  concurrency: 100
+  threads: 5 
+  duration: 5s
+
+
+queries:
+   - name: Basic
+     filename: queries/basic_rest.json
+    
+   - name: Object List
+     filename: queries/object_list_rest.json
+
