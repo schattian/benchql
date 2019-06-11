@@ -14,6 +14,7 @@ Builtin servers:
  - Ruby (rails): dependencies on Gemfile (bundler).
  - Python (japronto): dependencies on requirements.txt.
  - Node (express): dependencies on yarn.
+ - Python (Flask REST simple example): flask.
 
 ## Benchmark
 
