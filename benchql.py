@@ -1,11 +1,8 @@
 import os
-import sys
 import re
-import argparse
-
+from ujson import loads, dumps
 import asyncio
-from asyncio.subprocess import PIPE, STDOUT, DEVNULL
-import json
+from asyncio.subprocess import PIPE
 import yaml
 from datetime import timedelta
 import fire
@@ -31,9 +28,6 @@ def parse_duration(time_str):
 
 
 async def run_wrk(endpoint, query, concurrency=20, duration=10,threads=1):
-    # wrk = await asyncio.create_subprocess_exec(
-    #     'wrk2', '-R', str(500), '-t', '1', '-c', str(concurrency), '-d', str(int(duration)), '-s', 'misc/graphql.lua',
-    #     endpoint, query, stdout=PIPE, stderr=PIPE)
     wrk = await asyncio.create_subprocess_exec(
         'wrk', '-t', str(int(threads)), '-c', str(concurrency), '-d', str(int(duration)), '-s', 'misc/graphql.lua',
         endpoint, query, stdout=PIPE, stderr=PIPE)
@@ -41,29 +35,29 @@ async def run_wrk(endpoint, query, concurrency=20, duration=10,threads=1):
     output, json_data = await wrk.communicate()
     print(output.decode('utf-8'))
     try:
-        data = json.loads(json_data)
+        data = loads(json_data)
     except:
         raise Exception("Received invalid json from wrk: {}".format(json_data))
 
     response_json = data.pop('response', None)
     if response_json:
         try:
-            response = json.loads(response_json)
+            response = loads(response_json)
         except:
             raise Exception("Received invalid json from the GraphQL query: {}".format(response_json))
     else:
         response = None
     retcode = await wrk.wait()
-
     return data, response
 
 
-async def start_server(command, cwd, wait_for=None):
+async def start_server(command, cwd):
     server = await asyncio.create_subprocess_exec(*command.split(), cwd=cwd)
     return server
 
 
-async def get_query_result(query_name, server_name, url, query_filename, warmup_duration=0, warmup_concurrency=1, threads=1):
+async def get_query_result(query_name, server_name, url, query_filename,
+                           warmup_duration=0, warmup_concurrency=1, threads=1):
     print("- Running query {}".format(query_name, server_name))
     if warmup_duration:
         print("  > Warming up the server")
@@ -91,11 +85,11 @@ async def force_termination(pid):
     await kill.communicate()
 
 
-async def bench_server(name, command, cwd, endpoint, queries, warmup_duration=0, command_ready_seconds=2, warmup_concurrency=1, threads=1):
+async def bench_server(name, command, cwd, endpoint, queries,
+                       warmup_duration=0, command_ready_seconds=2, warmup_concurrency=1, threads=1):
     print("Starting server: {}".format(name))
     if not await endpoint_is_dead(endpoint):
         print("- Can't start the server as there is a process already running on {}".format(endpoint))
-
     server = await start_server(command, cwd)
     await asyncio.sleep(command_ready_seconds)
     results = []
@@ -107,7 +101,7 @@ async def bench_server(name, command, cwd, endpoint, queries, warmup_duration=0,
                 results.append(
                     result
                 )
-                # We wait 2 seconds between trials
+                # Wait 2 seconds between trials
                 await asyncio.sleep(2)
             except Exception as e:
                 print("- Exception occured: {} - SKIPPING".format(str(e)))
@@ -119,7 +113,7 @@ async def bench_server(name, command, cwd, endpoint, queries, warmup_duration=0,
                 ))
 
         return results
-    except:
+    except Exception:
         raise
     finally:
         print("Terminating server: {}".format(name))
@@ -135,13 +129,13 @@ async def bench_server(name, command, cwd, endpoint, queries, warmup_duration=0,
 
 class Program(object):
     """The GraphQL Benchmarking utility"""
-    def dashboard(self, input):
+    def dashboard(self, input, config):
         """Runs the dashboard for the provided input"""
         with open(input, 'r') as f:
             contents = f.read()
-        bench_results = json.loads(contents)
+        bench_results = loads(contents)
         from dashboard import run_dash_server
-        run_dash_server(bench_results, debug=True)
+        run_dash_server(bench_results, debug=True, config=config)
 
     def benchmark(self, config, output=None):
         """Starts a benchmark given config and an optional output file"""
@@ -149,8 +143,8 @@ class Program(object):
         server = loop.run_until_complete(_main(config, output))
 
 
-async def _main(config, output):
-    with open(config, 'r') as content_file:
+async def _main(config_file, output):
+    with open(config_file, 'r') as content_file:
         content = content_file.read()
         config = yaml.load(content, Loader=yaml.FullLoader)
         warmup = config.get('warmup') or {}
@@ -161,7 +155,7 @@ async def _main(config, output):
             if filename:
                 with open(filename, 'r') as content_file:
                     content = content_file.read()
-                    query['expectedResult'] = json.loads(content)
+                    query['expectedResult'] = loads(content)
 
     duration = parse_duration(warmup.get('duration') or 0)
     concurrency = warmup.get('concurrency') or 1
@@ -192,10 +186,10 @@ async def _main(config, output):
 
     if output:
         with open(output, 'w') as output_file:
-            output_file.write(json.dumps(results))
+            output_file.write(dumps(results))
 
     from dashboard import run_dash_server
-    run_dash_server(results)
+    run_dash_server(results, config=config_file)
 
 if __name__ == "__main__":
     fire.Fire(Program)

@@ -17,7 +17,7 @@ servers:
     startupTime: 5s
 
 - name: Ruby:Rack
-  enabled: 0 
+  enabled: 1 
   endpoint: http://localhost:9292/graphql
   run:
     command: rackup app.ru 
@@ -25,7 +25,7 @@ servers:
     startupTime: 5s
 
 - name: Go:Native
-  enabled: 0
+  enabled: 1 
   endpoint: http://localhost:9090/query
   run:
     command: go run schema.go server.go
@@ -34,7 +34,7 @@ servers:
 
 warmup:
   concurrency: 1000
-  threads: 10
+  threads: 4
   duration: 5s
 
 

@@ -4,7 +4,7 @@ from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
 import click
-
+import yaml
 import json
 import itertools
 
@@ -64,21 +64,13 @@ def get_ymetric_fn(yMetric, on='latency'):
     return lambda x: int(yMetricFn(x))
 
 
-def run_dash_server(bench_results, debug=False):
-
-    all_queries = set([result['query_name'] for result in bench_results])
+def run_dash_server(bench_results, debug=False, config='config.yaml'):
     app = dash.Dash()
+    warmup = str(yaml.load(open(config, 'r'), Loader=yaml.FullLoader).get('warmup'))
 
     app.layout = html.Div(children=[
 
-        # html.Label('Benchmark'),
-        # dcc.Dropdown(
-        #     id='benchmark-index',
-        #     options=[{'label': query_name, 'value': query_name} for query_name in all_queries],
-        #     value=next(iter(all_queries))
-        # ),
-
-        html.Label('Response time metric'),
+        html.Label(f"Response time metric{warmup}"),
         dcc.Dropdown(
             id='response-time-metric',
             options=[
